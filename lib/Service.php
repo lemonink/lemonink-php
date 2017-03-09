@@ -4,7 +4,8 @@ namespace LemonInk;
 
 class Service extends \GuzzleHttp\Client
 {
-  protected $endpoint = "https://api.lemonink.co/v1";
+  protected $endpoint = "https://api.lemonink.co/v1/";
+
   protected $apiKey;
 
   public function __construct($apiKey)
