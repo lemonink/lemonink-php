@@ -38,7 +38,7 @@ class Transaction extends Base
     return $this->token;
   }
 
-  protected function setToken($token)
+  public function setToken($token)
   {
     $this->token = $token;
   }

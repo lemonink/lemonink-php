@@ -12,7 +12,7 @@ class Base
     return $this->id;
   }
 
-  protected function setId($id)
+  public function setId($id)
   {
     $this->id = $id;
   }
