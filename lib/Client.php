@@ -30,9 +30,49 @@ class Client
     $this->apiKey = $apiKey;
   }
 
+  public function find($modelName, $id)
+  {
+    $uri = $this->getUriFor($modelName, $id);
+    
+    $response = $this->getService()->get($uri);
+
+    if ($response->getStatusCode() === 200) {
+      $data = $this->deserialize("master", $response->getBody());
+      $modelClass = $this->getModelClassFor($modelName);
+
+      $model = new $modelClass();
+      $model->setAttributes($data);
+
+      return $model;
+    }
+  }
+
+  public function findAll($modelName)
+  {
+    $uri = $this->getUriFor($modelName);
+    
+    $response = $this->getService()->get($uri);
+
+    if ($response->getStatusCode() === 200) {
+      $data = $this->deserialize("master", $response->getBody());
+      $modelClass = $this->getModelClassFor($modelName);
+
+      $models = [];
+      foreach ($data as $row) {
+        $model = new $modelClass();
+        $model->setAttributes($row);
+        $models[] = $model;
+      }
+
+      return $models;
+    } else {
+      return [];
+    }
+  }
+
   public function save($model)
   {
-    $uri = $this->getUriFor($model, $model->getId());
+    $uri = $this->getUriFor($model->getModelName(), $model->getId());
     $action = $model->isPersisted() ? "patch" : "post";
 
     $json = $this->serialize($model->getModelName(), $model->toArray());
@@ -40,12 +80,9 @@ class Client
     $response = $this->getService()->$action($uri, ["json" => $json]);
 
     if ($response->getStatusCode() < 300) {
-      // var_dump($this->deserialize($model->getModelName(), $response->getBody()));
       $model->setAttributes($this->deserialize($model->getModelName(), $response->getBody()));
-      var_dump($model);
     } else {
       $errors = $this->deserializeErrors($response->getBody());
-      var_dump($errors);
       $error = $errors[0];
       throw new Exception($error["title"], intval($error["code"]));
     }
@@ -75,12 +112,32 @@ class Client
 
   protected function deserialize($modelName, $data)
   {
-    $json = json_decode($data, true);
-    $json = $json[camelcase2underscore($modelName)];
+    $singularKey = camelcase2underscore($modelName);
+    $pluralKey = $singularKey . "s";
 
+    $json = json_decode($data, true);
+
+    if (array_key_exists($singularKey, $json)) {
+      $json = $json[$singularKey];
+
+      return $this->deserializeRow($json);
+    } else if (array_key_exists($pluralKey, $json)) {
+      $json = $json[$pluralKey];
+      $rows = [];
+
+      foreach ($json as $row) {
+        $rows[] = $this->deserializeRow($row);
+      }
+
+      return $rows;
+    }
+  }
+
+  protected function deserializeRow($row)
+  {
     $attributes = [];
 
-    foreach ($json as $key => $value) {
+    foreach ($row as $key => $value) {
       $attributes[underscore2camelcase($key)] = $value;
     }
 
@@ -105,13 +162,19 @@ class Client
     return $errors;
   }
 
-  protected function getUriFor($model, $id)
+  protected function getUriFor($modelName, $id = null)
   {
     // Crude pluralization. Sufficient for now.
-    $parts = [$model->getModelName() . "s"];
+    $parts = [$modelName . "s"];
     if ($id) {
       $parts[] = $id;
     }
     return implode($parts, "/");
+  }
+
+  protected function getModelClassFor($modelName)
+  {
+    $modelName = ucfirst($modelName);
+    return "LemonInk\\Models\\$modelName";
   }
 }
