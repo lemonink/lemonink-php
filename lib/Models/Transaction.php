@@ -53,12 +53,12 @@ class Transaction extends Base
     $this->status = $status;
   }
 
-  public function getUrl()
+  public function getUrl($format = null)
   {
     return join("/", [
       self::DOWNLOADS_ENDPOINT,
       $this->getToken(),
-      $this->getId()
+      join(".", [$this->getId(), $format])
     ]);
   }
 };
