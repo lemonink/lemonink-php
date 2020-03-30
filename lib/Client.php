@@ -169,7 +169,7 @@ class Client
     if ($id) {
       $parts[] = $id;
     }
-    return implode($parts, "/");
+    return implode("/", $parts);
   }
 
   protected function getModelClassFor($modelName)
