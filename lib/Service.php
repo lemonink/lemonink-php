@@ -11,7 +11,10 @@ class Service extends \GuzzleHttp\Client
   public function __construct($apiKey)
   {
     parent::__construct([
-      "base_uri" => $this->getEndpoint()
+      // Used in Guzzle >= 6.x
+      "base_uri" => $this->getEndpoint(),
+       // Used in Guzzle <= 5.x
+      "base_url" => $this->getEndpoint()
     ]);
 
     $this->setApiKey($apiKey);
@@ -41,14 +44,26 @@ class Service extends \GuzzleHttp\Client
     ];
   }
 
+  // Used in Guzzle >= 6.x
   public function requestAsync($method, $uri = '', array $options = [])
   {
     if (!isset($options["headers"])) {
       $options["headers"] = array();
     }
-    $options["headers"] = array_merge($this->getDefaultHeaders(), $options);
+    $options["headers"] = array_merge($this->getDefaultHeaders(), $options["headers"]);
     $options["http_errors"] = false;
 
     return parent::requestAsync($method, $uri, $options);
+  }
+
+  // Used in Guzzle <= 5.x
+  public function createRequest($method, $url = '', array $options = [])
+  {
+    if (!isset($options["headers"])) {
+      $options["headers"] = array();
+    }
+    $options["headers"] = array_merge($this->getDefaultHeaders(), $options["headers"]);
+
+    return parent::createRequest($method, $url, $options);
   }
 }
