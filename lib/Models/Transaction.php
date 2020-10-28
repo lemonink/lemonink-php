@@ -6,10 +6,11 @@ class Transaction extends Base
 {
   const DOWNLOADS_ENDPOINT = "https://dl.lemonink.co/transactions";
 
-  protected $attributeNames = ["masterId", "watermarkValue", "token", "status"];
+  protected $attributeNames = ["masterId", "watermarkValue", "watermarkParams", "token", "status"];
 
   protected $masterId;
   protected $watermarkValue;
+  protected $watermarkParams;
   protected $token;
   protected $status;
 
@@ -31,6 +32,16 @@ class Transaction extends Base
   public function getWatermarkValue()
   {
     return $this->watermarkValue;
+  }
+
+  public function setWatermarkParams($watermarkParams)
+  {
+    $this->watermarkParams = $watermarkParams;
+  }
+
+  public function getWatermarkParams()
+  {
+    return $this->watermarkParams;
   }
 
   public function getToken()

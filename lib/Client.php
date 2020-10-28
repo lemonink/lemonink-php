@@ -37,7 +37,7 @@ class Client
     $response = $this->getService()->get($uri);
 
     if ($response->getStatusCode() === 200) {
-      $data = $this->deserialize("master", $response->getBody());
+      $data = $this->deserialize($modelName, $response->getBody());
       $modelClass = $this->getModelClassFor($modelName);
 
       $model = new $modelClass();
@@ -54,7 +54,7 @@ class Client
     $response = $this->getService()->get($uri);
 
     if ($response->getStatusCode() === 200) {
-      $data = $this->deserialize("master", $response->getBody());
+      $data = $this->deserialize($modelName, $response->getBody());
       $modelClass = $this->getModelClassFor($modelName);
 
       $models = [];
