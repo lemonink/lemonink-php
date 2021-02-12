@@ -6,13 +6,14 @@ class Transaction extends Base
 {
   const DOWNLOADS_ENDPOINT = "https://dl.lemonink.co/transactions";
 
-  protected $attributeNames = ["masterId", "watermarkValue", "watermarkParams", "token", "status"];
+  protected $attributeNames = ["masterId", "watermarkValue", "watermarkParams", "token", "status", "downloadUrl"];
 
   protected $masterId;
   protected $watermarkValue;
   protected $watermarkParams;
   protected $token;
   protected $status;
+  protected $downloadUrl;
 
   public function setMasterId($masterId)
   {
@@ -64,12 +65,18 @@ class Transaction extends Base
     $this->status = $status;
   }
 
+  protected function getDownloadUrl()
+  {
+    return $this->downloadUrl;
+  }
+
+  protected function setDownloadUrl($downloadUrl)
+  {
+    $this->downloadUrl = $downloadUrl;
+  }
+
   public function getUrl($format = null)
   {
-    return join("/", [
-      self::DOWNLOADS_ENDPOINT,
-      $this->getToken(),
-      join(".", [$this->getId(), $format])
-    ]);
+    return join(".", [$this->getDownloadUrl(), $format]);
   }
 };
