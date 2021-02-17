@@ -77,7 +77,7 @@ class Client
 
     $json = $this->serialize($model->getModelName(), $model->toArray());
 
-    $response = $this->getService()->$action($uri, ["json" => $json]);
+    $response = $this->getService()->$action($uri, ["body" => $json]);
 
     if ($response->getStatusCode() < 300) {
       $model->setAttributes($this->deserialize($model->getModelName(), $response->getBody()));
@@ -105,9 +105,11 @@ class Client
       $output[camelcase2underscore($key)] = $value;
     }
 
-    return [
+    $output = [
       camelcase2underscore($modelName) => $output
     ];
+
+    return json_encode($output);
   }
 
   protected function deserialize($modelName, $data)

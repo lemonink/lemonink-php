@@ -2,7 +2,7 @@
 
 namespace LemonInk;
 
-class Service extends \GuzzleHttp\Client
+class Service
 {
   protected $endpoint = "https://api.lemonink.co/v1/";
 
@@ -10,13 +10,6 @@ class Service extends \GuzzleHttp\Client
 
   public function __construct($apiKey)
   {
-    parent::__construct([
-      // Used in Guzzle >= 6.x
-      "base_uri" => $this->getEndpoint(),
-       // Used in Guzzle <= 5.x
-      "base_url" => $this->getEndpoint()
-    ]);
-
     $this->setApiKey($apiKey);
   }
 
@@ -44,26 +37,31 @@ class Service extends \GuzzleHttp\Client
     ];
   }
 
-  // Used in Guzzle >= 6.x
-  public function requestAsync($method, $uri = '', array $options = [])
+  public function get($url, array $options = [])
   {
-    if (!isset($options["headers"])) {
-      $options["headers"] = array();
-    }
-    $options["headers"] = array_merge($this->getDefaultHeaders(), $options["headers"]);
-    $options["http_errors"] = false;
-
-    return parent::requestAsync($method, $uri, $options);
+    return $this->makeRequest("GET", $url, $options);
   }
 
-  // Used in Guzzle <= 5.x
-  public function createRequest($method, $url = '', array $options = [])
+  public function post($url, array $options = [])
   {
+    return $this->makeRequest("POST", $url, $options);
+  }
+
+  public function patch($url, array $options = [])
+  {
+    return $this->makeRequest("PATCH", $url, $options);
+  }
+
+  protected function makeRequest($method, $url = '', array $options = [])
+  {
+    $url = $this->getEndpoint() . $url;
     if (!isset($options["headers"])) {
       $options["headers"] = array();
     }
     $options["headers"] = array_merge($this->getDefaultHeaders(), $options["headers"]);
 
-    return parent::createRequest($method, $url, $options);
+    $request = new Request($method, $url, $options);
+    $response = $request->make();
+    return $response;
   }
 }
